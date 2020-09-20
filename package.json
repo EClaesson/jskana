@@ -2,9 +2,9 @@
   "name": "jskana",
   "version": "0.0.1",
   "description": "Japanese kana and romaji conversion.",
-  "main": "index.js",
+  "main": "jskana.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [
     "japanese",
@@ -15,5 +15,8 @@
     "kanji"
   ],
   "author": "Emanuel Claesson",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^26.4.2"
+  }
 }
