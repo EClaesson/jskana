@@ -1,6 +1,6 @@
 {
   "name": "jskana",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Japanese kana and romaji conversion.",
   "main": "jskana.js",
   "scripts": {
