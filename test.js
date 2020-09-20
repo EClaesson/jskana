@@ -59,3 +59,12 @@ test('kanaToRomaji', () => {
     expect(jskana.kanaToRomaji('こちゃに れもんを いれます。')).toBe('kochani remonwo iremasu。');
     expect(jskana.kanaToRomaji('ネクライトーキー')).toBe('nekuraitoki');
 });
+
+test('romajiToHiragana', () => {
+    expect(jskana.romajiToHiragana('kochani remonwo iremasu。')).toBe('こちゃに れもんを いれます。');
+})
+
+test('romajiToKatakana', () => {
+    expect(jskana.romajiToKatakana('kurakushon')).toBe('クラクション');
+})
+

@@ -55,7 +55,7 @@ const HIRAGANA_ROMAJI_MAPPING = [
     ['りゅ', 'ryu'],	['りょ', 'ryo'],	['ぎゃ', 'gya'],	['ぎゅ', 'gyu'],	['ぎょ', 'gyo'],
     ['じゃ', 'ja'],	['じゅ', 'ju'],	['じょ', 'jo'],	['びゃ', 'bya'],	['びゅ', 'byu'],
     ['びょ', 'byo'],	['ぴゃ', 'pya'],	['ぴゅ', 'pyu'],	['ぴょ', 'pyo'],
-];
+].sort((a, b) => { return a[1].length < b[1].length ? -1 : 1; });
 
 const HIRAGANA = 0;
 const KATAKANA = 1;
@@ -131,6 +131,14 @@ function _systemConvertChar(char, from_system, to_system) {
 function _systemConvertString(str, from_system, to_system) {
     let converted = '';
 
+    if(from_system === ROMAJI) {
+        if(to_system === HIRAGANA) {
+            return _romajiToHiragana(str);
+        } else {
+            return _systemConvertString(_romajiToHiragana(str), HIRAGANA, KATAKANA);
+        }
+    }
+
     [...str].forEach((char) => {
         if(_isCharWhitespace(char) || !isStringOfSystem(char, from_system)) {
             converted += char;
@@ -150,6 +158,32 @@ function _hiraganaCharToRomaji(char) {
     }
 
     return '';
+}
+
+function _romajiToHiragana(str) {
+    let remaining = str.slice();
+    let hiragana = '';
+
+    while(remaining.length > 0) {
+        let found = false;
+
+        for(let i = HIRAGANA_ROMAJI_MAPPING.length - 1; i >= 0; i--) {
+            let mapping = HIRAGANA_ROMAJI_MAPPING[i];
+
+            if(remaining.startsWith(mapping[1])) {
+                hiragana += mapping[0];
+                remaining = remaining.substring(mapping[1].length);
+                found = true;
+            }
+        }
+
+        if(!found) {
+            hiragana += remaining[0];
+            remaining = remaining.substring(1);
+        }
+    }
+
+    return hiragana;
 }
 
 function isStringOfSystem(str, system, include_punctuation) {
@@ -216,6 +250,9 @@ function isRomaji(str, include_punctuation=true) { return [...str].every((char) 
 function hiraganaToKatakana(str) { return _systemConvertString(str, HIRAGANA, KATAKANA); }
 function katakanaToHiragana(str) { return _systemConvertString(str, KATAKANA, HIRAGANA); }
 
+function romajiToHiragana(str) { return _systemConvertString(str, ROMAJI, HIRAGANA); }
+function romajiToKatakana(str) { return _systemConvertString(str, ROMAJI, KATAKANA); }
+
 exports.splitKanaString = splitKanaString;
 exports.isHiragana = isHiragana;
 exports.isKatakana = isKatakana;
@@ -225,3 +262,5 @@ exports.isRomaji = isRomaji;
 exports.hiraganaToKatakana = hiraganaToKatakana;
 exports.katakanaToHiragana = katakanaToHiragana;
 exports.kanaToRomaji = kanaToRomaji;
+exports.romajiToHiragana = romajiToHiragana;
+exports.romajiToKatakana = romajiToKatakana;

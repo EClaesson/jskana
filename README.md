@@ -55,6 +55,14 @@ Return a string based on _str_ where all katakana characters are replaced with h
 
 Returns a string based on _str_ where all hiragana and katakana are replaced with romaji.
 
+``` romajiToHiragana(str) ```
+
+Returns a string based on _str_ with all romaji replaced with hiragana.
+
+``` romajiToKatakana(str) ```
+
+Returns a string based on _str_ with all romaji replaced with katakana.
+
 ## Examples
 
 ```javascript
@@ -80,4 +88,7 @@ jskana.hiraganaToKatakana('「うまい もも こっちゃ こい。 にがい 
 
 jskana.kanaToRomaji('こちゃに れもんを いれます。')
 > 'kochani remonwo iremasu。'
+
+jskana.romajiToHiragana('kochani remonwo iremasu')
+> 'こちゃに れもんを いれます'
 ```
