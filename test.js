@@ -54,3 +54,8 @@ test('hiraganaToKatakana', () => {
 test('katakanaToHiragana', () => {
     expect(jskana.katakanaToHiragana('「ウマイ モモ コッチャ コイ。 ニガイ モモ アッチャ イケ。」 ト イッタラ、 ')).toBe('「うまい もも こっちゃ こい。 にがい もも あっちゃ いけ。」 と いったら、 ');
 });
+
+test('kanaToRomaji', () => {
+    expect(jskana.kanaToRomaji('こちゃに れもんを いれます。')).toBe('kochani remonwo iremasu。');
+    expect(jskana.kanaToRomaji('ネクライトーキー')).toBe('nekuraitoki');
+});
