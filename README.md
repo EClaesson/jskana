@@ -41,6 +41,16 @@ Splits a hiragana or katakana string into separate characters, grouped with smal
 
 Example: 'あっさり' will return ['あっ', 'さ', 'り'].
 
+### Kana conversion
+
+``` hiraganaToKatakana(str) ```
+
+Return a string based on _str_ where all hiragana characters are replaced with katakana.
+
+``` katakanaToHiragana(str) ```
+
+Return a string based on _str_ where all katakana characters are replaced with hiragana.
+
 ## Examples
 
 ```javascript

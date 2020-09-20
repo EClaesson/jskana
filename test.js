@@ -46,3 +46,11 @@ test('isRomaji', () => {
     expect(jskana.isRomaji('うまい もも こっちゃ こい。')).toBe(false);
     expect(jskana.isRomaji('アメリカ〪')).toBe(false);
 });
+
+test('hiraganaToKatakana', () => {
+    expect(jskana.hiraganaToKatakana('「うまい もも こっちゃ こい。 にがい もも あっちゃ いけ。」 と いったら、 ')).toBe('「ウマイ モモ コッチャ コイ。 ニガイ モモ アッチャ イケ。」 ト イッタラ、 ');
+});
+
+test('katakanaToHiragana', () => {
+    expect(jskana.katakanaToHiragana('「ウマイ モモ コッチャ コイ。 ニガイ モモ アッチャ イケ。」 ト イッタラ、 ')).toBe('「うまい もも こっちゃ こい。 にがい もも あっちゃ いけ。」 と いったら、 ');
+});

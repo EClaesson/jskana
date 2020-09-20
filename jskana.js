@@ -91,6 +91,33 @@ function _isCharRomaji(str, include_punctuation) {
     return false;
 }
 
+function _systemConvertChar(char, from_system, to_system) {
+    const kanaSystemDiff = 0x30a0 - 0x3040;
+    let charCode = char.charCodeAt(0);
+
+    if(from_system === HIRAGANA && to_system === KATAKANA) {
+        charCode += kanaSystemDiff;
+    } else if(from_system === KATAKANA && to_system === HIRAGANA) {
+        charCode -= kanaSystemDiff;
+    }
+
+    return String.fromCharCode(charCode);
+}
+
+function _systemConvertString(str, from_system, to_system) {
+    let converted = '';
+
+    [...str].forEach((char) => {
+        if(_isCharWhitespace(char) || !isStringOfSystem(char, from_system)) {
+            converted += char;
+        } else {
+            converted += _systemConvertChar(char, from_system, to_system);
+        }
+    });
+
+    return converted;
+}
+
 function isStringOfSystem(str, system, include_punctuation) {
     if(system === ROMAJI) {
         return isRomaji(str, include_punctuation);
@@ -135,9 +162,14 @@ function isKanji(str, include_punctuation=true) { return isStringOfSystem(str, K
 function isPunctuation(str) { return isStringOfSystem(str, PUNCTUATION, false); }
 function isRomaji(str, include_punctuation=true) { return [...str].every((char) => _isCharRomaji(char, include_punctuation)); }
 
+function hiraganaToKatakana(str) { return _systemConvertString(str, HIRAGANA, KATAKANA); }
+function katakanaToHiragana(str) { return _systemConvertString(str, KATAKANA, HIRAGANA); }
+
 exports.splitKanaString = splitKanaString;
 exports.isHiragana = isHiragana;
 exports.isKatakana = isKatakana;
 exports.isKanji = isKanji;
 exports.isPunctuation = isPunctuation;
 exports.isRomaji = isRomaji;
+exports.hiraganaToKatakana = hiraganaToKatakana;
+exports.katakanaToHiragana = katakanaToHiragana;
