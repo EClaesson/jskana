@@ -16,6 +16,7 @@
   ],
   "author": "Emanuel Claesson",
   "license": "MIT",
+  "homepage": "https://github.com/EClaesson/jskana",
   "devDependencies": {
     "jest": "^26.4.2"
   }
