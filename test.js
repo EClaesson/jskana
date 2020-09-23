@@ -56,8 +56,8 @@ test('katakanaToHiragana', () => {
 });
 
 test('kanaToRomaji', () => {
-    //expect(jskana.kanaToRomaji('こちゃに れもんを いれます。')).toBe('kochani remonwo iremasu。');
-    //expect(jskana.kanaToRomaji('ネクライトーキー')).toBe('nekuraitoki');
+    expect(jskana.kanaToRomaji('こちゃに れもんを いれます。')).toBe('kochani remonwo iremasu。');
+    expect(jskana.kanaToRomaji('ネクライトーキー')).toBe('nekuraitoki');
     expect(jskana.kanaToRomaji('きっぷ')).toBe('kippu');
 });
 
