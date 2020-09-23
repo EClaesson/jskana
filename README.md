@@ -1,6 +1,13 @@
 # jskana
 Japanese kana and romaji conversion.
 
+## Installation
+```shell script
+npm install jskana --save
+
+yarn add jskana
+```
+
 ## Documentation
 
 ### Writing system checks
