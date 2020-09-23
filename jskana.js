@@ -1,9 +1,8 @@
-
-
 const HIRAGANA_CHARCODE_START = 0x3040;
 const HIRAGANA_CHARCODE_END = 0x309f;
 const HIRAGANA_CHARCODE_FUNCTIONAL_FOLLOWING = [
-    0x3043, 0x3045, 0x3047, 0x3049, 0x3083, 0x3085, 0x3087, 0x308e, 0x3095, 0x3096, 0x309d, 0x309e,
+    0x3043, 0x3045, 0x3047, 0x3049, 0x3083, 0x3085,
+    0x3087, 0x308e, 0x3095, 0x3096, 0x309d, 0x309e,
 ];
 const HIRAGANA_CHARCODE_FUNCTIONAL_PRECEDING = [
     0x3063,
@@ -12,7 +11,8 @@ const HIRAGANA_CHARCODE_FUNCTIONAL_PRECEDING = [
 const KATAKANA_CHARCODE_START = 0x30a0;
 const KATAKANA_CHARCODE_END = 0x30ff;
 const KATAKANA_CHARCODE_FUNCTIONAL_FOLLOWING = [
-    0x30a1, 0x30a3, 0x30a5, 0x30a7, 0x30a9, 0x30ab, 0x30e3, 0x30e5, 0x30e7, 0x30ee, 0x30f5, 0x30f6,
+    0x30a1, 0x30a3, 0x30a5, 0x30a7, 0x30a9, 0x30ab,
+    0x30e3, 0x30e5, 0x30e7, 0x30ee, 0x30f5, 0x30f6,
     0x30fc, 0x30fd, 0x30fe,
 ];
 const KATAKANA_CHARCODE_FUNCTIONAL_PRECEDING = [
@@ -36,8 +36,8 @@ const PUNCTUATION_CHARCODE_START = 0x3000;
 const PUNCTUATION_CHARCODE_END = 0x303f;
 
 const ROMAJI_CHARCODE_RANGES = [
-    [0x41, 0x5a], // A-Z
-    [0x61, 0x7a], // a-z
+    [0x41, 0x5a],     // A-Z
+    [0x61, 0x7a],     // a-z
     [0xff21, 0xff3a], // Full width roman A-Z
     [0xff41, 0xff5a], // Full width roman a-z
 ];
@@ -92,13 +92,13 @@ const _WRITINGSYSTEM_END = [
     PUNCTUATION_CHARCODE_END,
 ];
 
-function _isCharFunctional(str, include_preceding=true) {
+function _isCharFunctional(str, includePreceding=true) {
     const charCode = str.charCodeAt(0);
 
     for(let i = 0; i < KANA_FUNCTIONAL_FOLLOWING_CHARCODES.length; i++) {
         let system = KANA_FUNCTIONAL_FOLLOWING_CHARCODES[i];
 
-        if(include_preceding) {
+        if(includePreceding) {
             system = system.concat(KANA_FUNCTIONAL_PRECEDING_CHARCODES[i]);
         }
 
@@ -116,7 +116,7 @@ function _isCharWhitespace(str) {
     return WHITESPACE_CHARCODES.includes(charCode);
 }
 
-function _isCharRomaji(str, include_punctuation) {
+function _isCharRomaji(str, includePunctuation) {
     for(let i = 0; i < ROMAJI_CHARCODE_RANGES.length; i++) {
         const range = ROMAJI_CHARCODE_RANGES[i];
 
@@ -125,7 +125,7 @@ function _isCharRomaji(str, include_punctuation) {
         const rangeEnd = range[1];
         const isOfSystem = (charCode >= rangeStart && charCode <= rangeEnd) || _isCharWhitespace(str);
 
-        if(isOfSystem || (isPunctuation(str) && include_punctuation)) {
+        if(isOfSystem || (isPunctuation(str) && includePunctuation)) {
             return true;
         }
     }
@@ -134,24 +134,24 @@ function _isCharRomaji(str, include_punctuation) {
     return false;
 }
 
-function _systemConvertChar(char, from_system, to_system) {
+function _systemConvertChar(char, fromSystem, toSystem) {
     const kanaSystemDiff = 0x30a0 - 0x3040;
     let charCode = char.charCodeAt(0);
 
-    if(from_system === HIRAGANA && to_system === KATAKANA) {
+    if(fromSystem === HIRAGANA && toSystem === KATAKANA) {
         charCode += kanaSystemDiff;
-    } else if(from_system === KATAKANA && to_system === HIRAGANA) {
+    } else if(fromSystem === KATAKANA && toSystem === HIRAGANA) {
         charCode -= kanaSystemDiff;
     }
 
     return String.fromCharCode(charCode);
 }
 
-function _systemConvertString(str, from_system, to_system) {
+function _systemConvertString(str, fromSystem, toSystem) {
     let converted = '';
 
-    if(from_system === ROMAJI) {
-        if(to_system === HIRAGANA) {
+    if(fromSystem === ROMAJI) {
+        if(toSystem === HIRAGANA) {
             return _romajiToHiragana(str);
         } else {
             return _systemConvertString(_romajiToHiragana(str), HIRAGANA, KATAKANA);
@@ -159,10 +159,10 @@ function _systemConvertString(str, from_system, to_system) {
     }
 
     [...str].forEach((char) => {
-        if(_isCharWhitespace(char) || !isStringOfSystem(char, from_system)) {
+        if(_isCharWhitespace(char) || !isStringOfSystem(char, fromSystem)) {
             converted += char;
         } else {
-            converted += _systemConvertChar(char, from_system, to_system);
+            converted += _systemConvertChar(char, fromSystem, toSystem);
         }
     });
 
@@ -210,15 +210,16 @@ function _romajiToHiragana(str) {
     return hiragana;
 }
 
-function isStringOfSystem(str, system, include_punctuation) {
+function isStringOfSystem(str, system, includePunctuation) {
     if(system === ROMAJI) {
-        return isRomaji(str, include_punctuation);
+        return isRomaji(str, includePunctuation);
     } else {
         return [...str].every((char) => {
             const charCode = char.charCodeAt(0);
-            const isOfSystem = (charCode >= _WRITINGSYSTEM_START[system] && charCode <= _WRITINGSYSTEM_END[system]) || _isCharWhitespace(char);
+            const isOfSystem = (charCode >= _WRITINGSYSTEM_START[system]
+                && charCode <= _WRITINGSYSTEM_END[system]) || _isCharWhitespace(char);
 
-            if(include_punctuation) {
+            if(includePunctuation) {
                 return isOfSystem || isPunctuation(char);
             } else {
                 return isOfSystem;
@@ -237,9 +238,9 @@ function splitKanaString(str) {
     }
 
     [...str].forEach((char) => {
-        let charCode = char.charCodeAt(0);
-
-        if(current.length > 0 && !(current.length === 1 && allPreceding.includes(current.charCodeAt(0))) && !_isCharFunctional(char, false)) {
+        if(current.length > 0 && !(current.length === 1
+            && allPreceding.includes(current.charCodeAt(0)))
+            && !_isCharFunctional(char, false)) {
             chars.push(current);
             current = '';
         }
@@ -283,11 +284,11 @@ function kanaToRomaji(str) {
     return romaji;
 }
 
-function isHiragana(str, include_punctuation=true) { return isStringOfSystem(str, HIRAGANA, include_punctuation); }
-function isKatakana(str, include_punctuation=true) { return isStringOfSystem(str, KATAKANA, include_punctuation); }
-function isKanji(str, include_punctuation=true) { return isStringOfSystem(str, KANJI, include_punctuation); }
+function isHiragana(str, includePunctuation=true) { return isStringOfSystem(str, HIRAGANA, includePunctuation); }
+function isKatakana(str, includePunctuation=true) { return isStringOfSystem(str, KATAKANA, includePunctuation); }
+function isKanji(str, includePunctuation=true) { return isStringOfSystem(str, KANJI, includePunctuation); }
 function isPunctuation(str) { return isStringOfSystem(str, PUNCTUATION, false); }
-function isRomaji(str, include_punctuation=true) { return [...str].every((char) => _isCharRomaji(char, include_punctuation)); }
+function isRomaji(str, includePunctuation=true) { return [...str].every((char) => _isCharRomaji(char, includePunctuation)); }
 
 function hiraganaToKatakana(str) { return _systemConvertString(str, HIRAGANA, KATAKANA); }
 function katakanaToHiragana(str) { return _systemConvertString(str, KATAKANA, HIRAGANA); }
@@ -295,14 +296,16 @@ function katakanaToHiragana(str) { return _systemConvertString(str, KATAKANA, HI
 function romajiToHiragana(str) { return _systemConvertString(str, ROMAJI, HIRAGANA); }
 function romajiToKatakana(str) { return _systemConvertString(str, ROMAJI, KATAKANA); }
 
-exports.splitKanaString = splitKanaString;
-exports.isHiragana = isHiragana;
-exports.isKatakana = isKatakana;
-exports.isKanji = isKanji;
-exports.isPunctuation = isPunctuation;
-exports.isRomaji = isRomaji;
-exports.hiraganaToKatakana = hiraganaToKatakana;
-exports.katakanaToHiragana = katakanaToHiragana;
-exports.kanaToRomaji = kanaToRomaji;
-exports.romajiToHiragana = romajiToHiragana;
-exports.romajiToKatakana = romajiToKatakana;
+module.exports = {
+    splitKanaString,
+    isHiragana,
+    isKatakana,
+    isKanji,
+    isPunctuation,
+    isRomaji,
+    hiraganaToKatakana,
+    katakanaToHiragana,
+    kanaToRomaji,
+    romajiToHiragana,
+    romajiToKatakana,
+}
