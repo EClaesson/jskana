@@ -2,20 +2,31 @@
 
 const HIRAGANA_CHARCODE_START = 0x3040;
 const HIRAGANA_CHARCODE_END = 0x309f;
-const HIRAGANA_CHARCODE_FUNCTIONAL = [
-    0x3043, 0x3045, 0x3047, 0x3049, 0x3063, 0x3083, 0x3085, 0x3087, 0x308e, 0x3095, 0x3096, 0x309d, 0x309e,
+const HIRAGANA_CHARCODE_FUNCTIONAL_FOLLOWING = [
+    0x3043, 0x3045, 0x3047, 0x3049, 0x3083, 0x3085, 0x3087, 0x308e, 0x3095, 0x3096, 0x309d, 0x309e,
+];
+const HIRAGANA_CHARCODE_FUNCTIONAL_PRECEDING = [
+    0x3063,
 ];
 
 const KATAKANA_CHARCODE_START = 0x30a0;
 const KATAKANA_CHARCODE_END = 0x30ff;
-const KATAKANA_CHARCODE_FUNCTIONAL = [
-    0x30a1, 0x30a3, 0x30a5, 0x30a7, 0x30a9, 0x30ab, 0x30c3, 0x30e3, 0x30e5, 0x30e7, 0x30ee, 0x30f5, 0x30f6,
+const KATAKANA_CHARCODE_FUNCTIONAL_FOLLOWING = [
+    0x30a1, 0x30a3, 0x30a5, 0x30a7, 0x30a9, 0x30ab, 0x30e3, 0x30e5, 0x30e7, 0x30ee, 0x30f5, 0x30f6,
     0x30fc, 0x30fd, 0x30fe,
 ];
+const KATAKANA_CHARCODE_FUNCTIONAL_PRECEDING = [
+    0x30c3,
+];
 
-const KANA_FUNCTIONAL_CHARCODES = [
-    HIRAGANA_CHARCODE_FUNCTIONAL,
-    KATAKANA_CHARCODE_FUNCTIONAL,
+const KANA_FUNCTIONAL_FOLLOWING_CHARCODES = [
+    HIRAGANA_CHARCODE_FUNCTIONAL_FOLLOWING,
+    KATAKANA_CHARCODE_FUNCTIONAL_FOLLOWING,
+];
+
+const KANA_FUNCTIONAL_PRECEDING_CHARCODES = [
+    HIRAGANA_CHARCODE_FUNCTIONAL_PRECEDING,
+    KATAKANA_CHARCODE_FUNCTIONAL_PRECEDING,
 ];
 
 const KANJI_CHARCODE_START = 0x4e00;
@@ -57,6 +68,10 @@ const HIRAGANA_ROMAJI_MAPPING = [
     ['びょ', 'byo'],	['ぴゃ', 'pya'],	['ぴゅ', 'pyu'],	['ぴょ', 'pyo'],
 ].sort((a, b) => { return a[1].length < b[1].length ? -1 : 1; });
 
+const ROMAJI_VOWELS = [
+    'a', 'e', 'i', 'o', 'u', 'y',
+];
+
 const HIRAGANA = 0;
 const KATAKANA = 1;
 const KANJI = 2;
@@ -77,11 +92,15 @@ const _WRITINGSYSTEM_END = [
     PUNCTUATION_CHARCODE_END,
 ];
 
-function _isCharFunctional(str) {
+function _isCharFunctional(str, include_preceding=true) {
     const charCode = str.charCodeAt(0);
 
-    for(let i = 0; i < KANA_FUNCTIONAL_CHARCODES.length; i++) {
-        const system = KANA_FUNCTIONAL_CHARCODES[i];
+    for(let i = 0; i < KANA_FUNCTIONAL_FOLLOWING_CHARCODES.length; i++) {
+        let system = KANA_FUNCTIONAL_FOLLOWING_CHARCODES[i];
+
+        if(include_preceding) {
+            system = system.concat(KANA_FUNCTIONAL_PRECEDING_CHARCODES[i]);
+        }
 
         if(system.includes(charCode)) {
             return true;
@@ -167,6 +186,11 @@ function _romajiToHiragana(str) {
     while(remaining.length > 0) {
         let found = false;
 
+        if(remaining.length >= 2 && remaining[0] === remaining[1] && !ROMAJI_VOWELS.includes(remaining[0])) {
+            hiragana += 'っ';
+            remaining = remaining.substring(1);
+        }
+
         for(let i = HIRAGANA_ROMAJI_MAPPING.length - 1; i >= 0; i--) {
             let mapping = HIRAGANA_ROMAJI_MAPPING[i];
 
@@ -205,11 +229,17 @@ function isStringOfSystem(str, system, include_punctuation) {
 
 function splitKanaString(str) {
     let chars = [];
-
     let current = '';
+    let allPreceding = [];
+
+    for(let system of KANA_FUNCTIONAL_PRECEDING_CHARCODES) {
+        allPreceding = allPreceding.concat(system);
+    }
 
     [...str].forEach((char) => {
-        if(current.length > 0 && !_isCharFunctional(char)) {
+        let charCode = char.charCodeAt(0);
+
+        if(current.length > 0 && !(current.length === 1 && allPreceding.includes(current.charCodeAt(0))) && !_isCharFunctional(char, false)) {
             chars.push(current);
             current = '';
         }
@@ -234,7 +264,19 @@ function kanaToRomaji(str) {
         if(_isCharWhitespace(part) || !isHiragana(part, false)) {
             romaji += part;
         } else {
-            romaji += _hiraganaCharToRomaji(part);
+            let hasSokuon = part[0] === 'っ';
+
+            if(hasSokuon) {
+                part = part.substring(1);
+            }
+
+            let thisRomaji = _hiraganaCharToRomaji(part);
+
+            if(hasSokuon) {
+                thisRomaji = thisRomaji[0] + thisRomaji;
+            }
+
+            romaji += thisRomaji;
         }
     });
 
