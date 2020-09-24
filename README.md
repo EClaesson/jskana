@@ -46,7 +46,7 @@ Returns _true_ if all characters in _str_ is punctuation or whitespace.
 
 Splits a hiragana or katakana string into separate characters, grouped with small characters.
 
-Example: 'あっさり' will return ['あっ', 'さ', 'り'].
+Example: 'あっさり' will return ['あ', 'っさ', 'り'].
 
 ### Kana conversion
 
