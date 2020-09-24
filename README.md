@@ -88,7 +88,7 @@ jskana.isPunctuation('『モー人本あっ』')
 > false
 
 jskana.splitKanaString('あっさり')
-> ['あっ', 'さ', 'り']
+> ['あ', 'っさ', 'り']
 
 jskana.hiraganaToKatakana('「うまい もも こっちゃ こい。 にがい もも あっちゃ いけ。」 と いったら、 ')
 > '「ウマイ モモ コッチャ コイ。 ニガイ モモ アッチャ イケ。」 ト イッタラ、 '
