@@ -1,6 +1,9 @@
 # jskana
 Japanese kana and romaji conversion.
 
+![](https://img.shields.io/npm/dt/jskana.svg)
+![](https://img.shields.io/npm/dm/jskana.svg)
+
 ## Installation
 ```shell script
 npm install jskana --save
